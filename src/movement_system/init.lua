@@ -1,22 +1,18 @@
-local input = require("src.movement_system.input")
-
 local movement = {}
-movement.processors = {}
-
-function movement.add_processor(processor)
-    table.insert(movement.processors, processor)
-end
 
 function movement.update(entity, dt)
-    local dx, dy = input.get_direction(entity)
-    local speed = entity.move_speed or 200
+    local context = {
+        speed = entity.move_speed or 200,
+        dx = entity.move_input.x,
+        dy = entity.move_input.y
+    }
 
-    for _, processor in ipairs(movement.processors) do
-        speed = processor.process(entity, speed)
+    for _, processor in ipairs(entity.movement_processors) do
+        processor.process(entity, context)
     end
 
-    entity.x = entity.x + dx * speed * dt
-    entity.y = entity.y + dy * speed * dt
+    entity.x = entity.x + context.dx * context.speed * dt
+    entity.y = entity.y + context.dy * context.speed * dt
 end
 
 return movement
